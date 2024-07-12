@@ -288,21 +288,106 @@ export const JB_BIGINT: JsonBinding<bigint> = jbMapped(JB_STRING, bi => bi.toStr
   }
 });
 
-export type JbUnionValue = { kind: string, value: Json };
+export type TypedUnionValue<K extends string, T> = { kind: K, value: T };
 
-export const JB_UNION_VALUE: JsonBinding<JbUnionValue> = {
-  toJson(v: JbUnionValue): Json {
-    return { [v.kind]: v.value };
-  },
-  fromJson(v: Json): JbUnionValue {
-    const o = asJsonObject(v);
+export type UnionBranch<K extends string, T> = TypedUnionValue<K, JsonBinding<T>>
+
+export function jbUnion<
+  K1 extends string, T1,
+>(jbs: [
+  UnionBranch<K1, T1>
+]): JsonBinding<
+  TypedUnionValue<K1, T1>
+>
+
+export function jbUnion<
+  K1 extends string, T1,
+  K2 extends string, T2,
+>(jbs: [
+  UnionBranch<K1, T1>,
+  UnionBranch<K2, T2>,
+]): JsonBinding<
+  TypedUnionValue<K1, T1>
+  | TypedUnionValue<K2, T2>
+>
+
+export function jbUnion<
+  K1 extends string, T1,
+  K2 extends string, T2,
+  K3 extends string, T3,
+>(jbs: [
+  UnionBranch<K1, T1>,
+  UnionBranch<K2, T2>,
+  UnionBranch<K3, T3>,
+]): JsonBinding<
+  TypedUnionValue<K1, T1>
+  | TypedUnionValue<K2, T2>
+  | TypedUnionValue<K3, T3>
+>
+
+export function jbUnion<
+  K1 extends string, T1,
+  K2 extends string, T2,
+  K3 extends string, T3,
+  K4 extends string, T4,
+>(jbs: [
+  UnionBranch<K1, T1>,
+  UnionBranch<K2, T2>,
+  UnionBranch<K3, T3>,
+  UnionBranch<K4, T4>,
+]): JsonBinding<
+  TypedUnionValue<K1, T1>
+  | TypedUnionValue<K2, T2>
+  | TypedUnionValue<K3, T3>
+  | TypedUnionValue<K4, T4>
+>
+
+export function jbUnion<
+  K1 extends string, T1,
+  K2 extends string, T2,
+  K3 extends string, T3,
+  K4 extends string, T4,
+  K5 extends string, T5,
+>(jbs: [
+  UnionBranch<K1, T1>,
+  UnionBranch<K2, T2>,
+  UnionBranch<K3, T3>,
+  UnionBranch<K4, T4>,
+  UnionBranch<K5, T5>,
+]): JsonBinding<
+  TypedUnionValue<K1, T1>
+  | TypedUnionValue<K2, T2>
+  | TypedUnionValue<K3, T3>
+  | TypedUnionValue<K4, T4>
+  | TypedUnionValue<K5, T5>
+>
+
+export function jbUnion(ubs: UnionBranch<string, unknown>[]): JsonBinding<{ kind: string, value: unknown }> {
+  function toJson(v: { kind: string, value: unknown }): Json {
+    for (const ub of ubs) {
+      if (v.kind === ub.kind) {
+        return { [ub.kind]: ub.value.toJson(v.value) };
+      }
+    }
+    throw new Error("BUG: invalid kind passed to union toJson");
+  }
+
+  function fromJson(json: Json): {kind: string, value: unknown} {
+    const o = asJsonObject(json);
     if (o) {
       const keys = Object.keys(o);
       if (keys.length === 1) {
-        return {kind:keys[0], value: o[keys[0]]};
+        const kind = keys[0];
+        for (const ub of ubs) {
+          if (kind === ub.kind) {
+            return { kind, value: ub.value.fromJson(o[kind]) };
+          }
+        }
+        throw new JsonParseException(`invalid union kind: ${kind}`);
       }
     }
     throw new JsonParseException("expected a union value as a single keyed object");
-  },
-}
+  }
 
+  return { toJson, fromJson };
+}
