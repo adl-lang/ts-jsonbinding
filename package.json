@@ -1,0 +1,16 @@
+{
+  "name": "jsonbinding",
+  "version": "0.0.1",
+  "main": "index.js",
+  "types": "index.js.ts",
+  "license": "AGPL-3.0-or-later",
+  "private": false,
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "yarn clean && yarn tsc && cp package.json README.md dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {}
+}
