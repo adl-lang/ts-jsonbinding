@@ -7,10 +7,13 @@
   "private": false,
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && yarn tsc && cp package.json README.md dist"
+    "build": "yarn clean && yarn tsc && cp package.json README.md dist",
+    "test": "yarn vitest run"
   },
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3",
+    "vitest": "^2.0.2"
   },
   "dependencies": {}
 }
