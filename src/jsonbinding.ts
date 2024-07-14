@@ -158,8 +158,20 @@ export function stringMap<T>(jbt: JsonBinding<T>): JsonBinding<StringMap<T>> {
   return { toJson, fromJson };
 }
 
+export interface JsonBindingWithDefault<T> extends JsonBinding<T> {
+  defaultv?: () => T
+}
+
+export function withDefault<T>(jb: JsonBinding<T>, defv: T): JsonBindingWithDefault<T> {
+  return { ...jb, defaultv: () => defv };
+}
+
+export function withDefaultFn<T>(jb: JsonBinding<T>, defaultv: () => T): JsonBindingWithDefault<T> {
+  return { ...jb, defaultv };
+}
+
 export type JsonBindingFields<T> = {
-  [Property in keyof T]: JsonBinding<T[Property]>
+  [Property in keyof T]: JsonBindingWithDefault<T[Property]>
 }
 
 
@@ -194,17 +206,27 @@ export function object<T extends {}>(jbfields: JsonBindingFields<T>): JsonBindin
     if (!jvu) {
       throw new JsonParseException('expected an object');
     }
-    const jbfieldsu = jbfields as { [key: string]: JsonBinding<unknown> };
+    const jbfieldsu = jbfields as { [key: string]: JsonBindingWithDefault<unknown> };
     const result: { [key: string]: unknown } = {};
     for (const key of Object.keys(jbfields)) {
-      try {
-        const v = jbfieldsu[key].fromJson(jvu[key]);
-        result[key] = v;
-      } catch (e) {
-        if (isJsonParseException(e)) {
-          e.pushField(key);
+      const jbfield = jbfieldsu[key];
+      const jv = jvu[key];
+      if (jv === undefined) {
+        if (jbfield.defaultv) {
+          result[key] = jbfield.defaultv();
+        } else {
+          throw new JsonParseException(`expected an object with field ${key}`);
         }
-        throw e;
+      } else {
+        try {
+          const v = jbfield.fromJson(jv);
+          result[key] = v;
+        } catch (e) {
+          if (isJsonParseException(e)) {
+            e.pushField(key);
+          }
+          throw e;
+        }
       }
     }
     return result as T;
@@ -392,7 +414,14 @@ export function union(ubs: UnionBranch<string, unknown>[]): JsonBinding<{ kind: 
         const kind = keys[0];
         for (const ub of ubs) {
           if (kind === ub.kind) {
-            return { kind, value: ub.value.fromJson(o[kind]) };
+            try {
+              return { kind, value: ub.value.fromJson(o[kind]) };
+            } catch (e) {
+              if (isJsonParseException(e)) {
+                e.pushField(kind);
+              }
+              throw e;
+            }
           }
         }
         throw new JsonParseException(`invalid union kind: ${kind}`);
