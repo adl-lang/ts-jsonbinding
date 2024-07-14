@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { JB_BIGINT, JB_DATE, JB_JSON, JB_NULL, JB_NUMBER, JB_STRING, jbObject, jbOrUndefined, jbUnion, Json, JsonBinding, JsonParseException } from './index';
+import { JsonBinding } from "./jsonbinding";
+import * as jb from './jsonbinding';
 
 interface User {
   name: string,
@@ -18,18 +19,18 @@ type UserOrJob
   | { kind: 'job', value: Job }
   ;
 
-const JB_USER: JsonBinding<User> = jbObject({
-  name: JB_STRING,
-  birthday: JB_DATE,
-  phoneNumber: jbOrUndefined(JB_STRING),
+const JB_USER: JsonBinding<User> = jb.object({
+  name: jb.string(),
+  birthday: jb.date(),
+  phoneNumber: jb.orUndefined(jb.string()),
 });
 
-const JB_JOB: JsonBinding<Job> = jbObject({
-  title: JB_STRING,
-  level: JB_NUMBER,
+const JB_JOB: JsonBinding<Job> = jb.object({
+  title: jb.string(),
+  level: jb.number(),
 });
 
-const JB_USER_OR_JOB: JsonBinding<UserOrJob> = jbUnion([
+const JB_USER_OR_JOB: JsonBinding<UserOrJob> = jb.union([
   { kind: 'user', value: JB_USER },
   { kind: 'job', value: JB_JOB },
 ]);
@@ -38,15 +39,15 @@ const JB_USER_OR_JOB: JsonBinding<UserOrJob> = jbUnion([
 
 
 test('primitives', () => {
-  expect(roundTrip(JB_STRING, "astring")).toEqual("astring");
-  expect(roundTrip(JB_NUMBER, 42)).toEqual(42);
-  expect(roundTrip(JB_NULL, null)).toEqual(null);
-  expect(roundTrip(JB_JSON, { 'a': 'b', 'c': 27 })).toStrictEqual({ 'a': 'b', 'c': 27 });
+  expect(roundTrip(jb.string(), "astring")).toEqual("astring");
+  expect(roundTrip(jb.number(), 42)).toEqual(42);
+  expect(roundTrip(jb.nullv(), null)).toEqual(null);
+  expect(roundTrip(jb.json(), { 'a': 'b', 'c': 27 })).toStrictEqual({ 'a': 'b', 'c': 27 });
   {
     const now = new Date();
-    expect(roundTrip(JB_DATE, now)).toEqual(now);
+    expect(roundTrip(jb.date(), now)).toEqual(now);
   }
-  expect(roundTrip(JB_BIGINT, 42n)).toEqual(42n);
+  expect(roundTrip(jb.bigint(), 42n)).toEqual(42n);
 });
 
 

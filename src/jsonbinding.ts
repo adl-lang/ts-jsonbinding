@@ -95,7 +95,7 @@ function identityJsonBinding<T>(expected: string, predicate: (json: Json) => boo
 
 // Given a JsonBinding for a value of type T, construct a JsonBinding
 // for an array of T
-export function jbArray<T>(jbt: JsonBinding<T>): JsonBinding<T[]> {
+export function array<T>(jbt: JsonBinding<T>): JsonBinding<T[]> {
   function toJson(v: T[]): Json {
     return v.map(jbt.toJson);
   }
@@ -126,7 +126,7 @@ export type StringMap<T> = { [key: string]: T };
 
 // Given a JsonBinding for a value of type T, construct a JsonBinding
 // for an string indexed map of T values
-export function jbStringMap<T>(jbt: JsonBinding<T>): JsonBinding<StringMap<T>> {
+export function stringMap<T>(jbt: JsonBinding<T>): JsonBinding<StringMap<T>> {
 
   function toJson(v: StringMap<T>): Json {
     const result: JsonObject = {};
@@ -176,7 +176,7 @@ export type JsonBindingFields<T> = {
 //    birthday: JB_DATE,
 // };
 
-export function jbObject<T extends {}>(jbfields: JsonBindingFields<T>): JsonBinding<T> {
+export function object<T extends {}>(jbfields: JsonBindingFields<T>): JsonBinding<T> {
 
   function toJson(v: T): Json {
     const vu = v as { [key: string]: unknown };
@@ -215,7 +215,7 @@ export function jbObject<T extends {}>(jbfields: JsonBindingFields<T>): JsonBind
 
 
 
-export function jbOrNull<T>(jbt: JsonBinding<T>): JsonBinding<T | null> {
+export function orNull<T>(jbt: JsonBinding<T>): JsonBinding<T | null> {
   function toJson(v: T | null): Json {
     if (v === null) {
       return null;
@@ -234,7 +234,7 @@ export function jbOrNull<T>(jbt: JsonBinding<T>): JsonBinding<T | null> {
 }
 
 // Construct a JsonBinding for optional values, where undefined is serialized as null
-export function jbOrUndefined<T>(jbt: JsonBinding<T>): JsonBinding<T | undefined> {
+export function orUndefined<T>(jbt: JsonBinding<T>): JsonBinding<T | undefined> {
   function toJson(v: T | undefined): Json {
     if (v === undefined) {
       return null;
@@ -255,7 +255,7 @@ export function jbOrUndefined<T>(jbt: JsonBinding<T>): JsonBinding<T | undefined
 // Construct a JsonBinding for type A given a JsonBinding for some other type B and functions
 // to map values of A <-> values of B. fnAB should not throw exceptions. fnBA may throw JsonParseExceptions.
 //
-export function jbMapped<A, B>(jbb: JsonBinding<B>, fnAB: (a: A) => B, fnBA: (b: B) => A): JsonBinding<A> {
+export function mapped<A, B>(jbb: JsonBinding<B>, fnAB: (a: A) => B, fnBA: (b: B) => A): JsonBinding<A> {
   function toJson(v: A): Json {
     return jbb.toJson(fnAB(v));
   }
@@ -267,32 +267,44 @@ export function jbMapped<A, B>(jbb: JsonBinding<B>, fnAB: (a: A) => B, fnBA: (b:
   return { toJson, fromJson };
 }
 
-export const JB_STRING: JsonBinding<string> = identityJsonBinding("a string", (v) => typeof (v) === 'string');
-export const JB_NUMBER: JsonBinding<number> = identityJsonBinding("a number", (v) => typeof (v) === 'number');
-export const JB_NULL: JsonBinding<null> = identityJsonBinding("a null", (v) => v === null);
-export const JB_JSON: JsonBinding<Json> = identityJsonBinding("a json value", (_v) => true);
+export function string(): JsonBinding<string> {
+  return identityJsonBinding("a string", (v) => typeof (v) === 'string');
+}
+export function number(): JsonBinding<number> {
+  return identityJsonBinding("a number", (v) => typeof (v) === 'number');
+}
+export function nullv(): JsonBinding<null> {
+  return identityJsonBinding("a null", (v) => v === null);
+}
+export function json(): JsonBinding<Json> {
+  return identityJsonBinding("a json value", (_v) => true);
+}
 
 // A JsonBinding that serializes a javscript Date as the number of milliseconds past the epoch
-export const JB_DATE: JsonBinding<Date> = jbMapped(JB_NUMBER, d => d.getTime(), n => new Date(n));
+export function date(): JsonBinding<Date> {
+  return mapped(number(), d => d.getTime(), n => new Date(n));
+}
 
 // A JsonBinding that serializes a javascript bigint as a string;
-export const JB_BIGINT: JsonBinding<bigint> = jbMapped(JB_STRING, bi => bi.toString(), s => {
-  try {
-    return BigInt(s);
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      throw new JsonParseException('expected a string containing a bigint');
-    } else {
-      throw e;
+export function bigint(): JsonBinding<bigint> {
+  return mapped(string(), bi => bi.toString(), s => {
+    try {
+      return BigInt(s);
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        throw new JsonParseException('expected a string containing a bigint');
+      } else {
+        throw e;
+      }
     }
-  }
-});
+  });
+}
 
 export type TypedUnionValue<K extends string, T> = { kind: K, value: T };
 
 export type UnionBranch<K extends string, T> = TypedUnionValue<K, JsonBinding<T>>
 
-export function jbUnion<
+export function union<
   K1 extends string, T1,
 >(jbs: [
   UnionBranch<K1, T1>
@@ -300,7 +312,7 @@ export function jbUnion<
   TypedUnionValue<K1, T1>
 >
 
-export function jbUnion<
+export function union<
   K1 extends string, T1,
   K2 extends string, T2,
 >(jbs: [
@@ -311,7 +323,7 @@ export function jbUnion<
   | TypedUnionValue<K2, T2>
 >
 
-export function jbUnion<
+export function union<
   K1 extends string, T1,
   K2 extends string, T2,
   K3 extends string, T3,
@@ -325,7 +337,7 @@ export function jbUnion<
   | TypedUnionValue<K3, T3>
 >
 
-export function jbUnion<
+export function union<
   K1 extends string, T1,
   K2 extends string, T2,
   K3 extends string, T3,
@@ -342,7 +354,7 @@ export function jbUnion<
   | TypedUnionValue<K4, T4>
 >
 
-export function jbUnion<
+export function union<
   K1 extends string, T1,
   K2 extends string, T2,
   K3 extends string, T3,
@@ -362,7 +374,7 @@ export function jbUnion<
   | TypedUnionValue<K5, T5>
 >
 
-export function jbUnion(ubs: UnionBranch<string, unknown>[]): JsonBinding<{ kind: string, value: unknown }> {
+export function union(ubs: UnionBranch<string, unknown>[]): JsonBinding<{ kind: string, value: unknown }> {
   function toJson(v: { kind: string, value: unknown }): Json {
     for (const ub of ubs) {
       if (v.kind === ub.kind) {
@@ -372,7 +384,7 @@ export function jbUnion(ubs: UnionBranch<string, unknown>[]): JsonBinding<{ kind
     throw new Error("BUG: invalid kind passed to union toJson");
   }
 
-  function fromJson(json: Json): {kind: string, value: unknown} {
+  function fromJson(json: Json): { kind: string, value: unknown } {
     const o = asJsonObject(json);
     if (o) {
       const keys = Object.keys(o);
