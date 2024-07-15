@@ -57,6 +57,7 @@ The following primitives are provided:
 ```
 function string(): JsonBinding<string>;
 function number(): JsonBinding<number>;
+function boolean(): JsonBinding<boolean>;
 function nullv(): JsonBinding<null>;
 function json(): JsonBinding<Json>;
 function date(): JsonBinding<Date>;

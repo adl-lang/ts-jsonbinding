@@ -295,6 +295,9 @@ export function string(): JsonBinding<string> {
 export function number(): JsonBinding<number> {
   return identityJsonBinding("a number", (v) => typeof (v) === 'number');
 }
+export function boolean(): JsonBinding<boolean> {
+  return identityJsonBinding("a boolean", (v) => typeof(v) === 'boolean');
+}
 export function nullv(): JsonBinding<null> {
   return identityJsonBinding("a null", (v) => v === null);
 }

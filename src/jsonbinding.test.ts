@@ -44,6 +44,8 @@ test('primitives', () => {
 
   expect(roundTrip(jb.string(), "astring")).toEqual("astring");
   expect(roundTrip(jb.number(), 42)).toEqual(42);
+  expect(roundTrip(jb.boolean(), true)).toEqual(true);
+  expect(roundTrip(jb.boolean(), false)).toEqual(false);
   expect(roundTrip(jb.nullv(), null)).toEqual(null);
   expect(roundTrip(jb.json(), { 'a': 'b', 'c': 27 })).toStrictEqual({ 'a': 'b', 'c': 27 });
   {
