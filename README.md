@@ -6,7 +6,7 @@ Key features:
 * bidirectional (ie serialization and deserialization)
 * errors that describe the location of parse failures
 * support for unions, generics and custom types
-* handles builtin types like `biginti` and `Date`
+* handles builtin types like `bigint` and `Date`
 
 ## Overview
 
