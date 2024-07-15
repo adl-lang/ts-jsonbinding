@@ -1,5 +1,5 @@
 {
-  "name": "jsonbinding",
+  "name": "@adllang/jsonbinding",
   "version": "0.0.1",
   "main": "index.js",
   "types": "index.js.ts",

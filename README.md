@@ -224,3 +224,21 @@ for values that may be undefined or some other type:
 ```
 export function orUndefined<T>(jbt: JsonBinding<T>): JsonBinding<T | undefined> {
 ```
+
+# Development
+
+Build and test:
+
+```
+yarn
+yarn build
+yarn test
+```
+
+Publish:
+
+```
+yarn
+yarn build
+(cd dist; npm publish --access=public)
+
