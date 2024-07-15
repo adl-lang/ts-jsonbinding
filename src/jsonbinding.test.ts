@@ -150,6 +150,33 @@ test('stringmaps', () => {
   );
 });
 
+test('recursive types', () => {
+  interface Category {
+    name: string,
+    subcategories: Category[]
+  }
+
+  function jbCategory(): JsonBinding<Category> {
+    return jb.object({
+      name: jb.string(),
+      subcategories: jb.array(jb.lazy(() => jbCategory())),
+    });
+  }
+
+  let c: Category = {
+    name:"budget",
+    subcategories: [
+      {
+        name: "cheap",
+        subcategories: []
+      }
+    ]
+  };
+
+  expect(roundTrip(jbCategory(), c)).toStrictEqual(c);
+    
+});
+
 
 
 function roundTrip<T>(jb: JsonBinding<T>, v: T): T {

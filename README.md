@@ -202,6 +202,25 @@ function jbPath<P>(jbPoint: JsonBinding<P>): JsonBinding<Path<P>> {
 const JB_PATH_2D: JsonBinding<Path<Point2D>> = jbPath(JB_POINT_2D);
 ```
 
+## Recursive types
+
+A `lazy()` combinator is available to facilitate creating `JsonBinding`s for recursive
+types.
+
+```
+interface Category {
+  name: string,
+  subcategories: Category[]
+}
+
+function jbCategory(): JsonBinding<Category> {
+  return jb.object({
+    name: jb.string(),
+    subcategories: jb.array(jb.lazy(() => jbCategory())),
+  });
+}
+```
+
 ## Other helpers
 
 The library includes `JsonBinding` helpers

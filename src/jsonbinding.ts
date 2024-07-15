@@ -325,6 +325,25 @@ export function bigint(): JsonBinding<bigint> {
   });
 }
 
+// lazy helper for recursive types
+export function lazy<T>(fn: () => JsonBinding<T>): JsonBinding<T> {
+  let jb : JsonBinding<T> | undefined = undefined;
+
+  function getJb(): JsonBinding<T> {
+    if (jb == undefined) { 
+      jb = fn();
+    }
+    return jb;
+  }
+
+  return {
+    fromJson: (jv) => getJb().fromJson(jv),
+    toJson: (v) => getJb().toJson(v),
+  }
+}
+
+
+
 export type TypedUnionValue<K extends string, T> = { kind: K, value: T };
 
 export type UnionBranch<K extends string, T> = TypedUnionValue<K, JsonBinding<T>>
