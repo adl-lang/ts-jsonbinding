@@ -6,7 +6,7 @@ Key features:
 * bidirectional (ie serialization and deserialization)
 * errors that describe the location of parse failures
 * support for unions, generics and custom types
-* handles builtin types like `bigint` and `Date`
+* handles builtin types like `bigint`, `Date`, `Map<K,V>` and `Set<T>`
 
 ## Overview
 
@@ -65,6 +65,7 @@ function bigint(): JsonBinding<bigint>;
 ```
 
 Technically, `date()` and `bigint()` are implemented as mapped bindings (see below)
+
 
 ## Objects
 
@@ -143,6 +144,16 @@ const JB_SHAPE: JsonBinding<Shape> = jb.union([
   {kind: 'rectangle', value: JB_RECTANGLE},
   {kind: 'circle', value: JB_CIRCLE},
 ]);
+```
+
+## Maps, Sets and Pairs
+
+are supported via the following functions:
+
+```
+function map<K, V>(jbk: JsonBinding<K>, jbv: JsonBinding<V>): JsonBinding<Map<K, V>>
+function set<T>(jbt: JsonBinding<T>): JsonBinding<Set<T>>
+function pair<A, B>(jba: JsonBinding<A>, jbb: JsonBinding<B>): JsonBinding<[A, B]>
 ```
 
 ## Mapped types

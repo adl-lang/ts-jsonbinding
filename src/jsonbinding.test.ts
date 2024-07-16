@@ -150,6 +150,38 @@ test('stringmaps', () => {
   );
 });
 
+test('pairs', () => {
+  const JB_PAIR = jb.pair(jb.string(), jb.date());
+
+  const p1: [string,Date] = ["sometime", new Date()];
+
+  expect(roundTrip(JB_PAIR, p1)).toStrictEqual(p1);
+});
+
+test('maps', () => {
+  const JB_MAP = jb.map(jb.string(), jb.date());
+
+  const d1 = new Date();
+  const d2 = new Date(d1.getTime() + 10000);
+  const m = new Map<string,Date>();
+  m.set("t1", d1);
+  m.set("t2", d2);
+
+  expect(roundTrip(JB_MAP, m)).toStrictEqual(m);
+});
+
+test('sets', () => {
+  const JB_SET = jb.set(jb.number());
+
+  const s = new Set<number>();
+  s.add(7);
+  s.add(37);
+  s.add(19);
+
+  expect(roundTrip(JB_SET, s)).toStrictEqual(s);
+});
+
+
 test('recursive types', () => {
   interface Category {
     name: string,

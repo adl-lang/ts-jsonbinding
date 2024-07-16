@@ -1,10 +1,14 @@
 {
   "name": "@adllang/jsonbinding",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "main": "index.js",
   "types": "index.js.ts",
   "license": "AGPL-3.0-or-later",
   "private": false,
+  "repository": {
+     "type": "git",
+     "url": "git+https://github.com/adl-lang/ts-jsonbinding"
+  },
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && yarn tsc && cp package.json README.md dist",

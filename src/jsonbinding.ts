@@ -296,7 +296,7 @@ export function number(): JsonBinding<number> {
   return identityJsonBinding("a number", (v) => typeof (v) === 'number');
 }
 export function boolean(): JsonBinding<boolean> {
-  return identityJsonBinding("a boolean", (v) => typeof(v) === 'boolean');
+  return identityJsonBinding("a boolean", (v) => typeof (v) === 'boolean');
 }
 export function nullv(): JsonBinding<null> {
   return identityJsonBinding("a null", (v) => v === null);
@@ -327,10 +327,10 @@ export function bigint(): JsonBinding<bigint> {
 
 // lazy helper for recursive types
 export function lazy<T>(fn: () => JsonBinding<T>): JsonBinding<T> {
-  let jb : JsonBinding<T> | undefined = undefined;
+  let jb: JsonBinding<T> | undefined = undefined;
 
   function getJb(): JsonBinding<T> {
-    if (jb == undefined) { 
+    if (jb == undefined) {
       jb = fn();
     }
     return jb;
@@ -342,7 +342,63 @@ export function lazy<T>(fn: () => JsonBinding<T>): JsonBinding<T> {
   }
 }
 
+export function pair<A, B>(jba: JsonBinding<A>, jbb: JsonBinding<B>): JsonBinding<[A, B]> {
+  function toJson(v: [A, B]): Json {
+    return [jba.toJson(v[0]), jbb.toJson(v[1])];
+  }
+  function fromJson(json: Json): [A, B] {
+    const v = asJsonArray(json);
+    if (v && v.length == 2) {
+      let a: A;
+      let b: B;
+      try {
+        a = jba.fromJson(v[0]);
+      } catch (e) {
+        if (isJsonParseException(e)) {
+          e.pushIndex(0);
+        }
+        throw e;
+      }
+      try {
+        b = jbb.fromJson(v[1]);
+      } catch (e) {
+        if (isJsonParseException(e)) {
+          e.pushIndex(0);
+        }
+        throw e;
+      }
+      return [a, b]
+    } else {
+      throw new JsonParseException("expected a an array of size 2");
+    }
+  }
 
+  return { toJson, fromJson };
+}
+
+export function map<K, V>(jbk: JsonBinding<K>, jbv: JsonBinding<V>): JsonBinding<Map<K, V>> {
+  return mapped(
+    array(pair(jbk, jbv)),
+    m => Array.from(m.entries()),
+    entries => {
+      const result = new Map<K, V>();
+      entries.forEach(v => result.set(v[0], v[1]));
+      return result;
+    }
+  );
+}
+
+export function set<T>(jbt: JsonBinding<T>): JsonBinding<Set<T>> {
+  return mapped(
+    array(jbt),
+    s => Array.from(s.values()),
+    values => {
+      const result = new Set<T>();
+      values.forEach(v => result.add(v));
+      return result;
+    }
+  );
+}
 
 export type TypedUnionValue<K extends string, T> = { kind: K, value: T };
 
