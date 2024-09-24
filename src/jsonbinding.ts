@@ -4,18 +4,23 @@ export type JsonPrimitive = string | number | boolean | null;
 export type JsonArray = Json[];
 export type JsonObject = { [key: string]: Json };
 
+/**
+ * Interface for a bidirectional mapping between a type T and a json value
+ */
 export interface JsonBinding<T> {
-  // Convert an object of type T to Json
+  /** Convert an object of type T to Json */
   toJson(t: T): Json;
 
-  // Parse an object of type T from JSON. Throws a JsonParseException on failure
+  /** Parse an object of type T from JSON. Throws a JsonParseException on failure */
   fromJson(json: Json): T;
 };
 
-// Exceptions thrown during json parsing
-// Simple context information is tracked so that the location of an error in the
-// source json is captured.
-
+/**
+ * Exceptions thrown during json parsing
+ *
+ *Simple context information is tracked so that the location of an error in the
+ *source json is captured.
+*/
 export class JsonParseException {
   context: string[] = []
   constructor(readonly text: string) {
@@ -51,7 +56,7 @@ export function isJsonParseException(exception: unknown): exception is JsonParse
 }
 
 
-// Map a JsonException to an Error value
+/** Map a JsonException to an Error value */
 export function mapJsonException(exception: unknown): unknown {
   if (isJsonParseException(exception)) {
     return new Error(exception.message);
@@ -92,9 +97,10 @@ function identityJsonBinding<T>(expected: string, predicate: (json: Json) => boo
 }
 
 
-
-// Given a JsonBinding for a value of type T, construct a JsonBinding
-// for an array of T
+/**
+ * Given a JsonBinding for a value of type T, construct a JsonBinding
+ * for an array of T
+*/
 export function array<T>(jbt: JsonBinding<T>): JsonBinding<T[]> {
   function toJson(v: T[]): Json {
     return v.map(jbt.toJson);
@@ -124,8 +130,10 @@ export function array<T>(jbt: JsonBinding<T>): JsonBinding<T[]> {
 
 export type StringMap<T> = { [key: string]: T };
 
-// Given a JsonBinding for a value of type T, construct a JsonBinding
-// for an string indexed map of T values
+/**
+ * Given a JsonBinding for a value of type T, construct a JsonBinding
+ * for an string indexed map of T values
+*/
 export function stringMap<T>(jbt: JsonBinding<T>): JsonBinding<StringMap<T>> {
 
   function toJson(v: StringMap<T>): Json {
@@ -158,36 +166,41 @@ export function stringMap<T>(jbt: JsonBinding<T>): JsonBinding<StringMap<T>> {
   return { toJson, fromJson };
 }
 
+/** A JsonBinding extended with a default value */
 export interface JsonBindingWithDefault<T> extends JsonBinding<T> {
   defaultv?: () => T
 }
 
+/** Helper function to construct a JsonBinding with a default value */
 export function withDefault<T>(jb: JsonBinding<T>, defv: T): JsonBindingWithDefault<T> {
   return { ...jb, defaultv: () => defv };
 }
 
+/** Helper function to construct a JsonBinding with a default value */
 export function withDefaultFn<T>(jb: JsonBinding<T>, defaultv: () => T): JsonBindingWithDefault<T> {
   return { ...jb, defaultv };
 }
 
+/** A object where each field is a JsonBindingWithDefault */
 export type JsonBindingFields<T> = {
   [Property in keyof T]: JsonBindingWithDefault<T[Property]>
 }
 
 
-// Construct a JsonBinding for an object from a JSON Binding for each
-// of its fields. eg
-//
-// interface Person {
-//    name: string,
-//    birthday: Date,
-// };
-//
-// const JB_PERSON: JsonBindng0<Person> = jbObject({
-//    name: JB_STRING,
-//    birthday: JB_DATE,
-// };
-
+/**
+ * Construct a JsonBinding for an object from a JSON Binding for each
+ * of its fields. eg
+ *
+ * interface Person {
+ *    name: string,
+ *    birthday: Date,
+ * };
+ *
+ * const JB_PERSON: JsonBindng0<Person> = jbObject({
+ *    name: JB_STRING,
+ *    birthday: JB_DATE,
+ * };
+*/
 export function object<T extends {}>(jbfields: JsonBindingFields<T>): JsonBinding<T> {
 
   function toJson(v: T): Json {
@@ -255,7 +268,9 @@ export function orNull<T>(jbt: JsonBinding<T>): JsonBinding<T | null> {
   return { toJson, fromJson };
 }
 
-// Construct a JsonBinding for optional values, where undefined is serialized as null
+/**
+* Construct a JsonBinding for optional values, where undefined is serialized as null
+*/
 export function orUndefined<T>(jbt: JsonBinding<T>): JsonBinding<T | undefined> {
   function toJson(v: T | undefined): Json {
     if (v === undefined) {
@@ -274,9 +289,10 @@ export function orUndefined<T>(jbt: JsonBinding<T>): JsonBinding<T | undefined> 
   return { toJson, fromJson };
 }
 
-// Construct a JsonBinding for type A given a JsonBinding for some other type B and functions
-// to map values of A <-> values of B. fnAB should not throw exceptions. fnBA may throw JsonParseExceptions.
-//
+/**
+* Construct a JsonBinding for type A given a JsonBinding for some other type B and functions
+* to map values of A <-> values of B. fnAB should not throw exceptions. fnBA may throw JsonParseExceptions.
+*/
 export function mapped<A, B>(jbb: JsonBinding<B>, fnAB: (a: A) => B, fnBA: (b: B) => A): JsonBinding<A> {
   function toJson(v: A): Json {
     return jbb.toJson(fnAB(v));
@@ -305,12 +321,12 @@ export function json(): JsonBinding<Json> {
   return identityJsonBinding("a json value", (_v) => true);
 }
 
-// A JsonBinding that serializes a javscript Date as the number of milliseconds past the epoch
+/** A JsonBinding that serializes a javscript Date as the number of milliseconds past the epoch */
 export function date(): JsonBinding<Date> {
   return mapped(number(), d => d.getTime(), n => new Date(n));
 }
 
-// A JsonBinding that serializes a javascript bigint as a string;
+/** A JsonBinding that serializes a javascript bigint as a string; */
 export function bigint(): JsonBinding<bigint> {
   return mapped(string(), bi => bi.toString(), s => {
     try {
@@ -325,7 +341,7 @@ export function bigint(): JsonBinding<bigint> {
   });
 }
 
-// lazy helper for recursive types
+/** lazy helper for recursive types */
 export function lazy<T>(fn: () => JsonBinding<T>): JsonBinding<T> {
   let jb: JsonBinding<T> | undefined = undefined;
 
@@ -342,6 +358,7 @@ export function lazy<T>(fn: () => JsonBinding<T>): JsonBinding<T> {
   }
 }
 
+/** A JsonBinding that serializes a pair as an array of two value */
 export function pair<A, B>(jba: JsonBinding<A>, jbb: JsonBinding<B>): JsonBinding<[A, B]> {
   function toJson(v: [A, B]): Json {
     return [jba.toJson(v[0]), jbb.toJson(v[1])];
@@ -376,6 +393,7 @@ export function pair<A, B>(jba: JsonBinding<A>, jbb: JsonBinding<B>): JsonBindin
   return { toJson, fromJson };
 }
 
+/** Construct a  JsonBinding for the javascript Map type */
 export function map<K, V>(jbk: JsonBinding<K>, jbv: JsonBinding<V>): JsonBinding<Map<K, V>> {
   return mapped(
     array(pair(jbk, jbv)),
@@ -388,6 +406,7 @@ export function map<K, V>(jbk: JsonBinding<K>, jbv: JsonBinding<V>): JsonBinding
   );
 }
 
+/** Construct a  JsonBinding for the javascript Set type */
 export function set<T>(jbt: JsonBinding<T>): JsonBinding<Set<T>> {
   return mapped(
     array(jbt),
