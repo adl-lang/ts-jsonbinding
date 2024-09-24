@@ -1,5 +1,5 @@
 {
-  "name": "@adllang/ts-jsonbinding",
+  "name": "@adllang/jsonbinding",
   "version": "0.2.1",
   "exports": "./src/jsonbinding.ts"
 }
