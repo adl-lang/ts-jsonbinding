@@ -21,7 +21,7 @@ export class JsonParseException {
   constructor(readonly text: string) {
   }
 
-  get message() {
+  get message(): string {
     return this.text + ' at ' + this.createContextString();
   }
 
