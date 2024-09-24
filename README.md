@@ -261,15 +261,12 @@ export function orUndefined<T>(jbt: JsonBinding<T>): JsonBinding<T | undefined> 
 Build and test:
 
 ```
-yarn
-yarn build
-yarn test
+deno test
 ```
 
-Publish:
+Publish to JSR:
 
 ```
-yarn
-yarn build
-(cd dist; npm publish --access=public)
+deno publish
+```
 
