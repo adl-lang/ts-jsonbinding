@@ -1,4 +1,4 @@
-import { assertThrows, assertEquals, assertStrictEquals, fail } from "jsr:@std/assert";
+import { assertEquals, assertStrictEquals, fail } from "jsr:@std/assert";
 
 import { JsonBinding, JsonParseException } from "./jsonbinding.ts";
 import * as jb from './jsonbinding.ts';
@@ -35,8 +35,13 @@ const JB_USER_OR_JOB: JsonBinding<UserOrJob> = jb.union([
   { kind: 'job', value: JB_JOB },
 ]);
 
+const JB_USER_2 = jb.object({
+  name: jb.string(),
+  birthday: jb.date(),
+  phoneNumber: jb.orUndefined(jb.string()),
+});
 
-
+type InferredUser = jb.Infer<typeof JB_USER_2>;
 
 Deno.test('primitives', () => {
 
@@ -204,7 +209,7 @@ Deno.test('recursive types', () => {
     });
   }
 
-  let c: Category = {
+  const c: Category = {
     name:"budget",
     subcategories: [
       {

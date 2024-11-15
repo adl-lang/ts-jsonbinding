@@ -50,6 +50,25 @@ Then usage is:
 UncaughtError: expected an object with field birthday at $
 ```
 
+## Infererence
+
+In the previous example, I like having the `User` interface explicit
+in the code. But you can infer it from the JsonBinding, in the
+style of [zod](https://github.com/colinhacks/zod):
+
+
+```
+import { JsonBinding } from "@adllang/jsonbinding";
+import * as jb from '@adllang/jsonbinding';
+
+const JB_USER = jb.object({
+  name: jb.string(),
+  birthday: jb.date(),
+});
+
+type User = jb.Infer<typeof JB_USER>;
+````
+
 ## Primitives
 
 The following primitives are provided:

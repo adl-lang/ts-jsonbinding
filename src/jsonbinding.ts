@@ -96,6 +96,10 @@ function identityJsonBinding<T>(expected: string, predicate: (json: Json) => boo
   return { toJson, fromJson };
 }
 
+/**
+ * Infer the type T from a JsonBinding<T>
+ **/
+export  type Infer<JB extends JsonBinding<unknown>> = ReturnType<JB['fromJson']>
 
 /**
  * Given a JsonBinding for a value of type T, construct a JsonBinding
