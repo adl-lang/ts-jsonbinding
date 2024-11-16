@@ -1,12 +1,14 @@
 # A typescript library for JSON serialization
 
 Key features:
-* typescript implementation
-* extensible
 * bidirectional (ie serialization and deserialization)
+* handles builtin types like `bigint`, `Date`, `Map<K,V>` and `Set<T>`
+* extensible
 * errors that describe the location of parse failures
 * support for unions, generics and custom types
-* handles builtin types like `bigint`, `Date`, `Map<K,V>` and `Set<T>`
+* typescript implementation
+
+Here's a brief [comparison with zod](#comparisons).
 
 ## Overview
 
@@ -274,6 +276,29 @@ for values that may be undefined or some other type:
 ```
 export function orUndefined<T>(jbt: JsonBinding<T>): JsonBinding<T | undefined> {
 ```
+
+# Comparisons
+
+## Zod
+
+[Zod](https://zod.dev/) deserves credit for introducing robust typescript defined
+schema validations. It's widespread usage reflects it's values. The `ts-jsonbinding`
+library was built primarily to address the following key limitation of Zod:
+
+**zod is validation/deserialization only**. It can take accept external input, validate it, and
+then map it to internal typescript types. But it has no direct support for the opposite
+serialization path. As a concrete example zod has no equivalent for the `JB_USER.toJson` method
+[here](#overview)
+
+For my needs writing data to JSON (ie serialisation) is just as important as validation
+and parsing (ie deserialization). `JSON.serialize()` only does the right thing for a
+small fraction of possible data types, and various other libraries try and help
+with this (eg [superjson](https://github.com/flightcontrolhq/superjson)). 
+
+`ts-jsonbinding` is a single library to deal with both serialization and deserialization
+needs, with complete flexibility of the mapping between runtime values and their
+representation in JSON.
+
 
 # Development
 
