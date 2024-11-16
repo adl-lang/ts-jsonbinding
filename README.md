@@ -50,7 +50,7 @@ Then usage is:
 UncaughtError: expected an object with field birthday at $
 ```
 
-## Infererence
+## Inference
 
 In the previous example, I like having the `User` interface explicit
 in the code. But you can infer it from the JsonBinding, in the
@@ -79,8 +79,8 @@ function number(): JsonBinding<number>;
 function boolean(): JsonBinding<boolean>;
 function nullv(): JsonBinding<null>;
 function json(): JsonBinding<Json>;
-function date(): JsonBinding<Date>;
-function bigint(): JsonBinding<bigint>;
+function date(): JsonBinding<Date>;     # serialised as number of ms after unix epoch
+function bigint(): JsonBinding<bigint>; # serialsed as a string to maintain precision
 ```
 
 Technically, `date()` and `bigint()` are implemented as mapped bindings (see below)
@@ -287,5 +287,13 @@ Publish to JSR:
 
 ```
 deno publish
+```
+
+Publish to NPM:
+
+```
+deno task build_npm
+cd npm
+npm publish
 ```
 

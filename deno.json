@@ -1,5 +1,10 @@
 {
   "name": "@adllang/jsonbinding",
-  "version": "0.2.2",
-  "exports": "./src/jsonbinding.ts"
+  "version": "0.2.3",
+  "exports": "./src/jsonbinding.ts",
+  "imports": { "@deno/dnt": "jsr:@deno/dnt@^0.41.3" },
+  "tasks": {
+    "build_npm": "deno run -A scripts/build_npm.ts"
+  }
+  
 }
