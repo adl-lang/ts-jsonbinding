@@ -79,8 +79,8 @@ function number(): JsonBinding<number>;
 function boolean(): JsonBinding<boolean>;
 function nullv(): JsonBinding<null>;
 function json(): JsonBinding<Json>;
-function date(): JsonBinding<Date>;     # serialised as number of ms after unix epoch
-function bigint(): JsonBinding<bigint>; # serialsed as a string to maintain precision
+function date(): JsonBinding<Date>;     # serialized as number of ms after unix epoch
+function bigint(): JsonBinding<bigint>; # serialized as a string to maintain precision
 ```
 
 Technically, `date()` and `bigint()` are implemented as mapped bindings (see below)
