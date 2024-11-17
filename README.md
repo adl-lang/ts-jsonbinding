@@ -282,7 +282,7 @@ export function orUndefined<T>(jbt: JsonBinding<T>): JsonBinding<T | undefined> 
 ## Zod
 
 [Zod](https://zod.dev/) deserves credit for introducing robust typescript defined
-schema validations. It's widespread usage reflects it's values. The `ts-jsonbinding`
+schema validations. It's widespread use reflects it's value. The `ts-jsonbinding`
 library was built primarily to address the following key limitation of Zod:
 
 **zod is validation/deserialization only**. It can take accept external input, validate it, and
@@ -291,7 +291,7 @@ serialization path. As a concrete example zod has no equivalent for the `JB_USER
 [here](#overview)
 
 For my needs writing data to JSON (ie serialisation) is just as important as validation
-and parsing (ie deserialization). `JSON.serialize()` only does the right thing for a
+and parsing (ie deserialization). `JSON.stringify()` only does the right thing for a
 small fraction of possible data types, and various other libraries try and help
 with this (eg [superjson](https://github.com/flightcontrolhq/superjson)). 
 
