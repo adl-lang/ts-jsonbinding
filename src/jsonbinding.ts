@@ -65,6 +65,7 @@ export function mapJsonException(exception: unknown): unknown {
   }
 }
 
+/** Return the Json value as an object if it is one, otherwise undefined */
 export function asJsonObject(jv: Json): JsonObject | undefined {
   if (jv instanceof Object && !(jv instanceof Array)) {
     return jv as JsonObject;
@@ -72,6 +73,7 @@ export function asJsonObject(jv: Json): JsonObject | undefined {
   return undefined;
 }
 
+/** Return the Json value as an array if it is one, otherwise undefined */
 export function asJsonArray(jv: Json): JsonArray | undefined {
   if (jv instanceof Array) {
     return jv as JsonArray;
@@ -132,6 +134,7 @@ export function array<T>(jbt: JsonBinding<T>): JsonBinding<T[]> {
   return { toJson, fromJson };
 }
 
+/** A type representing a string indexed map of type T */
 export type StringMap<T> = { [key: string]: T };
 
 /**
@@ -253,7 +256,7 @@ export function object<T extends {}>(jbfields: JsonBindingFields<T>): JsonBindin
 }
 
 
-
+/** Construct a Jsonbinding for a value of type T or null */
 export function orNull<T>(jbt: JsonBinding<T>): JsonBinding<T | null> {
   function toJson(v: T | null): Json {
     if (v === null) {
@@ -309,18 +312,23 @@ export function mapped<A, B>(jbb: JsonBinding<B>, fnAB: (a: A) => B, fnBA: (b: B
   return { toJson, fromJson };
 }
 
+/** Construct a JsonBinding for a string value */
 export function string(): JsonBinding<string> {
   return identityJsonBinding("a string", (v) => typeof (v) === 'string');
 }
+/** Construct a JsonBinding for a numeric value */
 export function number(): JsonBinding<number> {
   return identityJsonBinding("a number", (v) => typeof (v) === 'number');
 }
+/** Construct a JsonBinding for a boolean value */
 export function boolean(): JsonBinding<boolean> {
   return identityJsonBinding("a boolean", (v) => typeof (v) === 'boolean');
 }
+/** Construct a JsonBinding for a null value */
 export function nullv(): JsonBinding<null> {
   return identityJsonBinding("a null", (v) => v === null);
 }
+/** Construct a JsonBinding for a json value */
 export function json(): JsonBinding<Json> {
   return identityJsonBinding("a json value", (_v) => true);
 }
@@ -423,10 +431,13 @@ export function set<T>(jbt: JsonBinding<T>): JsonBinding<Set<T>> {
   );
 }
 
+/** The type of one branch of a discriminated union with kind K and type T */
 export type TypedUnionValue<K extends string, T> = { kind: K, value: T };
 
+/** one branch of a discriminated union of jsonbings */
 export type UnionBranch<K extends string, T> = TypedUnionValue<K, JsonBinding<T>>
 
+/** Construct a JsonBinding for a discriminated union */
 export function union<
   K1 extends string, T1,
 >(jbs: [
