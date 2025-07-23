@@ -13,7 +13,7 @@ await build({
   package: {
     // package.json properties
     name: "@adllang/jsonbinding",
-    version: "0.2.3",
+    version: "0.2.5",
     description: "A typescript library for JSON serialization",
     license: "MIT",
     repository: {
