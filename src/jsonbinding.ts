@@ -117,7 +117,7 @@ export function array<T>(jbt: JsonBinding<T>): JsonBinding<T[]> {
     if (jarr == undefined) {
       throw new JsonParseException('expected an array');
     }
-    let result: T[] = [];
+    const result: T[] = [];
     jarr.forEach((eljson: Json, i: number) => {
       try {
         result.push(jbt.fromJson(eljson));
@@ -145,7 +145,7 @@ export function stringMap<T>(jbt: JsonBinding<T>): JsonBinding<StringMap<T>> {
 
   function toJson(v: StringMap<T>): Json {
     const result: JsonObject = {};
-    for (let k in v) {
+    for (const k in v) {
       result[k] = jbt.toJson(v[k]);
     }
     return result;
@@ -156,8 +156,8 @@ export function stringMap<T>(jbt: JsonBinding<T>): JsonBinding<StringMap<T>> {
     if (!jobj) {
       throw new JsonParseException('expected an object');
     }
-    let result: Record<string, T> = {};
-    for (let k in jobj) {
+    const result: Record<string, T> = {};
+    for (const k in jobj) {
       try {
         result[k] = jbt.fromJson(jobj[k]);
       } catch (e) {
@@ -352,6 +352,24 @@ export function bigint(): JsonBinding<bigint> {
     }
   });
 }
+
+function jbEnum<const TA extends readonly string[]>(
+  values: TA
+): JsonBinding<TA[number]> {
+  return mapped(
+    string(),
+    e => e,
+    s => {
+      if(values.includes(s)) {
+        return s as TA[number];
+      } else {
+        throw new JsonParseException(`expected enum value (${values.join(", ")})`);
+      }
+    }
+  );
+} 
+
+export {jbEnum as enum};
 
 /** lazy helper for recursive types */
 export function lazy<T>(fn: () => JsonBinding<T>): JsonBinding<T> {

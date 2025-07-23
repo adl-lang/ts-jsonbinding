@@ -1,6 +1,6 @@
 import { assertEquals, assertStrictEquals, fail } from "jsr:@std/assert";
 
-import { JsonBinding, JsonParseException } from "./jsonbinding.ts";
+import { type JsonBinding, JsonParseException } from "./jsonbinding.ts";
 import * as jb from './jsonbinding.ts';
 
 interface User {
@@ -58,6 +58,16 @@ Deno.test('primitives', () => {
     assertEquals(roundTrip(jb.date(), now).getTime(), now.getTime());
   }
   assertStrictEquals(roundTrip(jb.bigint(), 42n), 42n);
+});
+
+Deno.test('enums', () => {
+  const enum1= jb.enum(["foo", "bar"]);
+  assertEquals(roundTrip(enum1, "foo"), "foo");
+  assertEquals(roundTrip(enum1, "bar"), "bar");
+  assertThrowsJsonParseException(
+    () => enum1.fromJson("foox"),
+    "expected enum value (foo, bar) at $"
+  );
 });
 
 
