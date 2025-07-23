@@ -167,6 +167,15 @@ const JB_SHAPE: JsonBinding<Shape> = jb.union([
 ]);
 ```
 
+## String enums
+
+```
+const JB_FOOBAR: JsonBinding<'foo' | 'bar'> = jb.enum([
+  'foo',
+  'bar',
+]);
+```
+
 ## Maps, Sets and Pairs
 
 are supported via the following functions:
@@ -319,6 +328,7 @@ Publish to NPM:
 ```
 deno task build_npm
 cd npm
+npm login
 npm publish
 ```
 
